@@ -40,6 +40,7 @@ parser.add_argument('--layers_3d', type=int, default=4, help='number of initial 
 parser.add_argument('--growth_rate', type=int, nargs='+', default=[4,1,1], help='growth rate in the 3d network')
 parser.add_argument('--spn_init_channels', type=int, default=8, help='initial channels for spnet')
 parser.add_argument('--evaluate', action='store_true', help='only evaluate')
+parser.add_argument('--with_refine', action='store_true', help='with refine')
 
 
 args = parser.parse_args()
@@ -65,7 +66,7 @@ def main():
     for key, value in sorted(vars(args).items()):
         log.info(str(key) + ': ' + str(value))
 
-    model = models.anynet.AnyNet()
+    model = models.anynet.AnyNet(args)
     model = nn.DataParallel(model).cuda()
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(0.9, 0.999))
     log.info('Number of model parameters: {}'.format(sum([p.data.nelement() for p in model.parameters()])))
@@ -100,12 +101,13 @@ def main():
             }, savefilename)
 
     test(TestImgLoader, model, log)
-    log.info('full training time = {:.2f} Hours'.format((time.time() - start_full_time) / 3600))
+    if not args.evaluate:
+        log.info('full training time = {:.2f} Hours'.format((time.time() - start_full_time) / 3600))
 
 
 def train(dataloader, model, optimizer, log, epoch=0):
 
-    stages = 3 + args.with_spn
+    stages = 3 + args.with_refine
     losses = [AverageMeter() for _ in range(stages)]
     length_loader = len(dataloader)
 
@@ -134,10 +136,10 @@ def train(dataloader, model, optimizer, log, epoch=0):
 
         if batch_idx % args.print_freq:
             info_str = ['Stage {} = {:.2f}({:.2f})'.format(x, losses[x].val, losses[x].avg) for x in range(stages)]
-            info_str = f' io time: {(io_end_time - io_start_time):.2f} '.join(info_str)
+            info_str = ' '.join(info_str)
 
-            log.info('Epoch{} [{}/{}] {}'.format(
-                epoch, batch_idx, length_loader, info_str))
+            log.info('Epoch{} [{}/{}] io time: {:.2f} {}'.format(
+                epoch, batch_idx, length_loader, io_end_time - io_start_time, info_str))
         io_start_time = time.time()
     info_str = '\t'.join(['Stage {} = {:.2f}'.format(x, losses[x].avg) for x in range(stages)])
     log.info('Average train loss = ' + info_str)
@@ -145,7 +147,7 @@ def train(dataloader, model, optimizer, log, epoch=0):
 
 def test(dataloader, model, log):
 
-    stages = 3 + args.with_spn
+    stages = 3 + args.with_refine
     EPEs = [AverageMeter() for _ in range(stages)]
     length_loader = len(dataloader)
 
@@ -156,15 +158,15 @@ def test(dataloader, model, log):
         imgR = imgR.float().cuda()
         disp_L = disp_L.float().cuda()
 
-        if imgL.shape[2] % 16 != 0:
-            times = imgL.shape[2]//16
+        if imgL.shape[2]%16 != 0:
+            times = imgL.shape[2] // 16
             top_pad = (times+1)*16 - imgL.shape[2]
         else:
             top_pad = 0
 
-        if imgL.shape[3] % 16 != 0:
-            times = imgL.shape[3]//16
-            right_pad = (times+1)*16-imgL.shape[3]
+        if imgL.shape[3]%16 != 0:
+            times = imgL.shape[3] // 16
+            right_pad = (times+1)*16 - imgL.shape[3]
         else:
             right_pad = 0
         imgL = F.pad(imgL, (0, right_pad, top_pad, 0))

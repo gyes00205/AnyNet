@@ -6,13 +6,24 @@ from .submodule import *
 
 
 class AnyNet(nn.Module):
-    def __init__(self):
+    def __init__(self, args):
         super(AnyNet, self).__init__()
+        self.with_refine = args.with_refine
         self.feature_extraction = feature_extraction()
         self.conv3d_1 = make_conv3d_block(in_channels=1, hidden_channels=16, out_channels=1, num_layers=6)
         self.conv3d_2 = make_conv3d_block(in_channels=1, hidden_channels=4, out_channels=1, num_layers=6)
         self.conv3d_3 = make_conv3d_block(in_channels=1, hidden_channels=4, out_channels=1, num_layers=6)
         self.volume_regularization = nn.ModuleList([self.conv3d_1, self.conv3d_2, self.conv3d_3])
+        self.refine = nn.Sequential(
+            nn.Conv2d(in_channels=4, out_channels=8, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(in_channels=8, out_channels=8, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(in_channels=8, out_channels=8, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(in_channels=8, out_channels=1, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.ReLU(inplace=True),
+        )
 
     def _build_volume(self, refimg, targetimg, maxdisp):
         B, C, H, W = refimg.shape
@@ -98,7 +109,12 @@ class AnyNet(nn.Module):
                 pred_high_res = F.interpolate(pred_low_res, scale_factor=up_scale, mode='bilinear', align_corners=True)  # H/8 x W/8 or H/4 x W/4 -> H x W  
                 pred.append(pred_high_res + pred[i-1])
 
-        return pred[0], pred[1], pred[2]  # [stage1, stage2, stage3]
+        if self.with_refine:
+            residual = self.refine(torch.cat((pred[2], left), dim=1))
+            pred.append(pred[2] + residual)
+            return pred[0], pred[1], pred[2], pred[3]  # [stage1, stage2, stage3]
+        else:
+            return pred[0], pred[1], pred[2]  # [stage1, stage2, stage3]
             
 
 if __name__ == '__main__':

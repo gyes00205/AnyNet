@@ -1,16 +1,11 @@
 #!/bin/bash
 
-python main.py --maxdisp 192 \
-               --model AnyNet \
-               --epochs 10 \
-               --savemodel ./trained/
+python main.py --save_path results/pretrained_anynet_refine \
+               --with_refine
 
 
 
-python finetune.py --maxdisp 192 \
-                   --model stackhourglass \
-                   --datatype 2015 \
-                   --epochs 300 \
-                   --loadmodel ./trained/checkpoint_9.tar \
-                   --savemodel ./trained_2015/
+python finetune.py --save_path results/finetune_anynet_refine \
+                   --pretrained results/pretrained_anynet_refine/checkpoint.tar \
+                   --with_refine
 

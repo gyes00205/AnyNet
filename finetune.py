@@ -43,11 +43,12 @@ parser.add_argument('--channels_3d', type=int, default=4, help='number of initia
 parser.add_argument('--layers_3d', type=int, default=4, help='number of initial layers in 3d network')
 parser.add_argument('--growth_rate', type=int, nargs='+', default=[4,1,1], help='growth rate in the 3d network')
 parser.add_argument('--spn_init_channels', type=int, default=8, help='initial channels for spnet')
-parser.add_argument('--start_epoch_for_spn', type=int, default=121)
+parser.add_argument('--start_epoch_for_refine', type=int, default=0)
 parser.add_argument('--pretrained', type=str, default='results/pretrained_anynet/checkpoint.tar',
                     help='pretrained model path')
-parser.add_argument('--split_file', type=str, default=None)
+parser.add_argument('--split_file', type=str, default='dataset/KITTI2015_val.txt')
 parser.add_argument('--evaluate', action='store_true')
+parser.add_argument('--with_refine', action='store_true', help='with refine')
 
 
 args = parser.parse_args()
@@ -80,7 +81,7 @@ def main():
     for key, value in sorted(vars(args).items()):
         log.info(str(key) + ': ' + str(value))
 
-    model = models.anynet.AnyNet()
+    model = models.anynet.AnyNet(args)
     model = nn.DataParallel(model).cuda()
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(0.9, 0.999))
     log.info('Number of model parameters: {}'.format(sum([p.data.nelement() for p in model.parameters()])))
@@ -136,7 +137,7 @@ def main():
 
 def train(dataloader, model, optimizer, log, epoch=0):
 
-    stages = 3 + args.with_spn
+    stages = 3 + args.with_refine
     losses = [AverageMeter() for _ in range(stages)]
     length_loader = len(dataloader)
 
@@ -152,8 +153,8 @@ def train(dataloader, model, optimizer, log, epoch=0):
         mask.detach_()
         outputs = model(imgL, imgR)
 
-        if args.with_spn:
-            if epoch >= args.start_epoch_for_spn:
+        if args.with_refine:
+            if epoch >= args.start_epoch_for_refine:
                 num_out = len(outputs)
             else:
                 num_out = len(outputs) - 1
@@ -181,7 +182,7 @@ def train(dataloader, model, optimizer, log, epoch=0):
 
 def test(dataloader, model, log):
 
-    stages = 3 + args.with_spn
+    stages = 3 + args.with_refine
     D1s = [AverageMeter() for _ in range(stages)]
     length_loader = len(dataloader)
 
