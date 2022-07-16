@@ -24,7 +24,7 @@ def dataloader(filepath, log, split_file):
     image = [img for img in os.listdir(filepath + left_fold) if img.find('_10') > -1]
     if split_file is None:
         random.shuffle(image)
-        train = image[:]
+        train = image[:160]
         val = image[160:]
     else:
         with open(split_file) as f:
