@@ -18,6 +18,6 @@ This repo support pytorch 1.10.0+
 
 ## Runtime on 2028 Ti
 
-|            | Stage 1 | Stage 2 | Stage 3 | Stage 4 |
-| ---------- | ------- | ------- | ------- | ------- |
-| Runtime    | 5.3ms   | 8.45ms  | 11.1ms  | 11.4ms  |
+|             | Stage 1 | Stage 2 | Stage 3 | Stage 4 |
+| ----------- | ------- | ------- | ------- | ------- |
+| **Runtime** | 5.3ms   | 8.45ms  | 11.1ms  | 11.4ms  |
