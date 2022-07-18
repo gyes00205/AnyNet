@@ -22,7 +22,7 @@ parser.add_argument('--max_disparity', type=int, default=192)
 parser.add_argument('--maxdisplist', type=int, nargs='+', default=[12, 3, 3])
 parser.add_argument('--datatype', default='2015',
                     help='datapath')
-parser.add_argument('--datapath', default='/media/bsplab/62948A5B948A3219/data_scene_flow_2015/training/',
+parser.add_argument('--datapath', default='/media/bsplab/62948A5B948A3219/data_scene_flow_2015/testing/',
                     help='datapath')
 parser.add_argument('--with_spn', action='store_true', help='with spn network or not')
 parser.add_argument('--init_channels', type=int, default=1, help='initial channels for 2d feature extractor')
