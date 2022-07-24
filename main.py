@@ -16,7 +16,6 @@ import models.anynet
 parser = argparse.ArgumentParser(description='AnyNet with Flyingthings3d')
 parser.add_argument('--maxdisp', type=int, default=192, help='maxium disparity')
 parser.add_argument('--loss_weights', type=float, nargs='+', default=[0.25, 0.5, 1., 1.])
-parser.add_argument('--maxdisplist', type=int, nargs='+', default=[12, 3, 3])
 parser.add_argument('--datapath', default='/media/bsplab/62948A5B948A3219/SceneFlowData/',
                     help='datapath')
 parser.add_argument('--epochs', type=int, default=10,
@@ -31,14 +30,7 @@ parser.add_argument('--resume', type=str, default=None,
                     help='resume path')
 parser.add_argument('--lr', type=float, default=5e-4,
                     help='learning rate')
-parser.add_argument('--with_spn', action='store_true', help='with spn network or not')
 parser.add_argument('--print_freq', type=int, default=5, help='print frequence')
-parser.add_argument('--init_channels', type=int, default=1, help='initial channels for 2d feature extractor')
-parser.add_argument('--nblocks', type=int, default=2, help='number of layers in each stage')
-parser.add_argument('--channels_3d', type=int, default=4, help='number of initial channels of the 3d network')
-parser.add_argument('--layers_3d', type=int, default=4, help='number of initial layers of the 3d network')
-parser.add_argument('--growth_rate', type=int, nargs='+', default=[4,1,1], help='growth rate in the 3d network')
-parser.add_argument('--spn_init_channels', type=int, default=8, help='initial channels for spnet')
 parser.add_argument('--evaluate', action='store_true', help='only evaluate')
 parser.add_argument('--with_refine', action='store_true', help='with refine')
 
