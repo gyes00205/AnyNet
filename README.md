@@ -10,7 +10,7 @@ This repo support pytorch 1.10.0+
 ## :milky_way: Difference bwtween original repo and this repo
 1. [build residual cost volume](https://github.com/gyes00205/AnyNet/blob/b042b4470d6cf40e4726904a66ef93b00ec50887/models/anynet.py#L39)
     * The reason we can see this [issue](https://github.com/mileyan/AnyNet/issues/41#issue-1315917582).
-3. [refine network without spn](https://github.com/gyes00205/AnyNet/blob/b042b4470d6cf40e4726904a66ef93b00ec50887/models/anynet.py#L17)
+2. [refine network without spn](https://github.com/gyes00205/AnyNet/blob/b042b4470d6cf40e4726904a66ef93b00ec50887/models/anynet.py#L17)
 
 ## :key: Training
 ### Pretrain on SceneFlow dataset
