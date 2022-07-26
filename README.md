@@ -1,7 +1,6 @@
 # AnyNet
 ###### tags: `AnyNet`
 ## :beginner: Introduction
-![image.gif animation](readme_images/image.gif)
 ![demo.gif animation](readme_images/demo.gif)
 The goal of this repo is to re-implement the amazing work of [Yan Wang](https://github.com/mileyan) et al. for **Anytime Stereo Image Depth Estimation on Mobile Devices**. Original code and paper could be found via the following links:
 1. [Original repo](https://github.com/mileyan/AnyNet)
