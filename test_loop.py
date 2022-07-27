@@ -19,7 +19,7 @@ import numpy as np
 parser = argparse.ArgumentParser(description='Anynet fintune on KITTI')
 parser.add_argument('--maxdisp', type=int, default=192,
                     help='maxium disparity')
-parser.add_argument('--datapath', default='/media/bsplab/62948A5B948A3219/data_scene_flow_2015/testing/',
+parser.add_argument('--datapath', default='/home/bsplab/Documents/dataset_kitti/train/2011_09_26_drive_0011_sync',
                     help='datapath')
 parser.add_argument('--with_refine', action='store_true', help='with refine')
 parser.add_argument('--output_dir', type=str, default='output', help='output dir')
